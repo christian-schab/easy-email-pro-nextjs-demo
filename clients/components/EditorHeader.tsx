@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@arco-design/web-react";
 import { IconMenu } from "@arco-design/web-react/icon";
-import React from "react";
+import React, {useEffect} from "react";
 import { EmailTemplate, useEditorProps } from "easy-email-pro-editor";
 import { mjmlToJson, useEditorContext } from "easy-email-pro-theme";
 import { EditorCore, PluginManager } from "easy-email-pro-core";
@@ -27,8 +27,22 @@ export const EditorHeader = (props: {
   const [collapsed, setCollapsed] = React.useState(true);
   const [text, setText] = React.useState("");
   const [visible, setVisible] = React.useState(false);
-  const { values, submit, setFieldValue, mergetagsData } = useEditorContext();
+  const { values, submit, setFieldValue, mergetagsData, dirty } = useEditorContext();
   const { reset } = useEditorContext();
+
+  useEffect(() => {
+    console.log(`[useEffect] Dirty: ${dirty}`);
+  }, [dirty]);
+
+
+  const onSave = () => {
+    submit();
+    console.log(`[onSave] Submit done`);
+
+    reset(values);
+    console.log(`[onSave] Reset done`);
+    console.log(`[onSave] Dirty: ${dirty}`);
+  }
 
   const onChange = (text: string) => {
     setFieldValue(null, "subject", text);
@@ -205,7 +219,7 @@ export const EditorHeader = (props: {
             <div style={{ marginRight: 50 }}>
               <Space>
                 {props?.extra}
-
+                <div>Dirty: {String(dirty)}</div>
                 {!props.hideImport && (
                   <Dropdown
                     droplist={
@@ -230,6 +244,9 @@ export const EditorHeader = (props: {
                   <Dropdown
                     droplist={
                       <Menu>
+                        <Menu.Item key="Export MJML" onClick={onSave}>
+                          Save
+                        </Menu.Item>
                         <Menu.Item key="Export MJML" onClick={onExportMJML}>
                           Export MJML
                         </Menu.Item>
